@@ -1,0 +1,30 @@
+print "1";
+print 1;
+print "bidya";
+print a;
+print 1++2;
+print 1+2;
+print "1" ++ "4";
+print "bidya" ++ 24;
+
+e = 101;
+print e;
+f = 3*2;
+print f;
+
+if f > 6 then
+print "hii";
+else
+print "not hi";
+
+b=2;
+c=3;
+print b;
+print b++c;
+
+
+
+
+
+
+

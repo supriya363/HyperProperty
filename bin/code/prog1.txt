@@ -1,0 +1,75 @@
+if "abc" == "efg" then
+print "str equal";
+else
+print "str not equal";
+endif
+
+
+var v : Int;
+v = 10;
+var u : Int;
+u = 11;
+if v > u then
+print " 1st stmt ";
+print "2nd stmt ";
+else
+print " 3rd stmt";
+endif
+print "4th stmt";
+print "gen stmt";
+
+print 1+2;
+var i :Int;
+i = 0;
+i = i + 1;
+print "i is " ++ i;
+
+var a : Int;
+var b : Int;
+a = 2;
+b = 4;
+print "a is " ++ a ;
+print "b is " ++ b;
+print a+b;
+
+var test : Int;
+test = a+b;
+print "test is " ++ test;
+
+var e : Int;
+e = 1+2;
+print e;
+
+var c : String;
+var d : String;
+c = "bidya";
+d = "sarkar";
+print "c is " ++ c;
+print "d is " ++ d;
+print c++d;
+
+var f : String;
+f = "1" ++ "2";
+print f;
+
+var abc : String;
+abc = "iit";
+print abc;
+
+print "hello" ++ "world";
+print 7+10;
+
+var efg : String;
+efg = 2+10++"bidya";
+print efg;
+
+
+print 1+2++3;
+var dog : String;
+dog = "2";
+if dog == "3" then
+print "hello bidya";
+print "second stmt";
+else
+print "no hello bidya";
+endif

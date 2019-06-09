@@ -1,0 +1,12 @@
+var a : Int;
+var b : Int;
+a = 5;
+b = 3;
+if a > b then
+print "max : " ++ a ;
+print "min : " ++ b;
+else
+print "max : " ++ b ;
+print "min : " ++ a;
+endif
+print "prog end";

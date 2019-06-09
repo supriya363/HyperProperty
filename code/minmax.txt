@@ -1,0 +1,12 @@
+var a : Int {chkr : chkr};
+var b : Int {chkr : chkr};
+a = 5 {chkr: usr, chkr};
+b = 3 {chkr: usr, chkr};
+if a > b then
+print "max : " ++ a ;
+print "min : " ++ b;
+else
+print "max : " ++ b ;
+print "min : " ++ a;
+endif
+print "prog end";

@@ -1,0 +1,23 @@
+var t1 : Int;
+var t2 : Int;
+var t3 : Int;
+var i : Int;
+var n : Int;
+
+t1 = 0;
+t2 = 1;
+t3 = t1 + t2;
+i = 1;
+n = 6;
+print t1;
+print t2;
+while i < n do
+	print t3;
+	t1 = t2;
+	t2 = t3;
+	t3 = t1+t2;
+	i= i+1;
+endwhile
+
+
+

@@ -1,0 +1,9 @@
+var count : Int ;
+var i : Int ;
+count = 10;
+i = 0 ;
+while  i < count do
+print i;
+i = i+2;
+endwhile
+print "while prog end";

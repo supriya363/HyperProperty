@@ -1,0 +1,17 @@
+var sum : Int;
+var prod : Int;
+var i   : Int;
+
+i = 1;
+sum = 0;
+while i < 101 do
+  sum = sum + i;
+  i = i + 1;
+endwhile
+
+
+print "plus" ++ Str(101);
+print 1 + Int("2");
+print "1 + 2 + ... + 100 = " ++ sum;
+print "1 + 2 + ... + 100 = " ++ prod;
+
