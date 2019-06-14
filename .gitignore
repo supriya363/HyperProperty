@@ -4,4 +4,4 @@ target/
 *.class
 .classpath
 *.xml
-
+project/
