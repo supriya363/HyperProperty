@@ -67,6 +67,8 @@ object StatementProduct
                                             }
 
                                             oldAST = oldAST.tail
+                case IfStatement(condition, trueStmt, falseStmt) => 
+                                                                    oldAST = oldAST.tail
                 case _ => oldAST = oldAST.tail
             }
         }
