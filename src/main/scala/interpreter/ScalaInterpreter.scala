@@ -10,7 +10,7 @@ object ScalaInterpreter
     def calculateExpr(e: Expression): Datatype ={
       e match {
         case ExpIdentifier(n) => CurrentScope.variableValue.get(n)  match {            //  identifier ---- get value from scope map
-           case Some(int(e))=>  int(e) //Right(e)
+           case Some(int(e))=>  int(e) //Right(e)   ...refers to?
            case Some(string(e)) =>  string(e) //Left(e)
         }
         case Number(n) => int(n)                                                     // numberlit

@@ -12,10 +12,9 @@ case class Product(left: Expression, right: Expression) extends Expression
 case class GreaterThan( left: Expression,  right: Expression) extends Expression
 case class LessThan( left: Expression,  right: Expression) extends Expression
 case class EqualsTo( left: Expression, right: Expression) extends Expression
-case class Concat (left :Expression , right:Expression )  extends Expression
+case class Concat ( left : Expression , right: Expression )  extends Expression
 case class Stoi(e1 : Expression)  extends Expression
 case class Itos(e1 : Expression)  extends Expression
-
-  
+//add empty expression -> skip
 
 

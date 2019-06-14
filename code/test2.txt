@@ -1,0 +1,9 @@
+var a: Int;
+var b: Int;
+var c: String;
+var d: Int;
+a = b+2;
+if a > 6 then
+print "hii" ;
+endif
+
