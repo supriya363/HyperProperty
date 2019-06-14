@@ -1,7 +1,7 @@
-bin/
-target/
+bin/*
+target/*
 .settings/
 *.class
 .classpath
 *.xml
-project/
+project/*
