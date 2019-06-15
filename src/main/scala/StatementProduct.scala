@@ -21,8 +21,8 @@ object StatementProduct
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         println("OldAST->\n" + oldAST)             
         val k = 2                   //Number of copies required
-        var currentLevel = 0
-        newAST = createActivationVariables(k,mapOfActivationVariables, currentLevel)
+        var currentLevel = 0        //To keep note of current set of relevant activation variables
+        newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel)
         println(mapOfActivationVariables)
         newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k)
         
@@ -80,6 +80,7 @@ object StatementProduct
                                             // oldAST = oldAST.tail
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k)
 
+                
                 case VariableDefinition(ExpIdentifier(name), value)     =>  
                                             println("Definition Case")
                                             var keyArray = mapOfRenamedVariables(name)
@@ -99,8 +100,35 @@ object StatementProduct
                                             }
 
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k)
-                // case IfStatement(condition, trueStmt, falseStmt) => 
-                //                                                     oldAST = oldAST.tail
+                
+                
+                case IfStatement(condition, trueStmt, falseStmt) => 
+                                            /* Create Fresh Activation Variables ( 2*k required) */
+                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, currentLevel+1 )
+                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, currentLevel+2 )
+                                            var i =0
+
+                                            /* Insert Activation Variable Assignments Statements */
+                                            var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
+                                            var newActivationVarArray1 = mapOfActivationVariables(currentLevel+1)
+                                            var newActivationVarArray2 = mapOfActivationVariables(currentLevel+2)
+                                            for(i <- 1 to k)
+                                            {
+                                                var currentActVarName = originalActivationVariableArray(i)
+                                                var newActVarName1 = newActivationVarArray1(i)
+                                                var newActVarName2 = newActivationVarArray2(i)
+                                                var checkActVarCondition1 = GreaterThan(ExpIdentifier(currentActVarName), Number(0))
+                                                var checkActVarCondition2 = GreaterThan(ExpIdentifier(currentActVarName), Number(0))
+                                                var newCondition = getRenamedValue(condition, mapOfRenamedVariables, i)
+                                                var andStmt1 = And(checkActVarCondition1 ,newCondition )
+                                                var andStmt2 = And(checkActVarCondition2 ,Not(newCondition) )
+
+                                                var newActVarAssignment1 = VariableDefinition(ExpIdentifier(newActVarName1), andStmt1)
+                                                var newActVarAssignment2 = VariableDefinition(ExpIdentifier(newActVarName2), andStmt2)
+                                                newAST = newAST ::: List(newActVarAssignment1, newActVarAssignment2)
+                                            }
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k)
+
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k)
             }
         }
@@ -126,13 +154,19 @@ object StatementProduct
         return renamedExpr
     }
 
-    def createActivationVariables(k: Int, actVariableMap: mutable.Map[Int, Array[String]], level: Int): List[Statement] =
+    def renameExpression()
+    {
+
+    }
+
+    def createActivationVariables(newASTarg: List[Statement], k: Int, actVariableMap: mutable.Map[Int, Array[String]], level: Int): List[Statement] =
     {
         var i = 0
         var datatype = "Int" //CHANGE TO BOOLEAN LATER
         var keyArray = new Array[String](k+1)
         keyArray(0) = datatype
-        var newAST: List[Statement] = List()
+        // var newAST: List[Statement] = List()
+        var newAST = newASTarg
         for ( i <- 1 to k)
         {
             val stmt = VariableDeclaration(ExpIdentifier("actVar"+level+"_"+i.toString), datatype)

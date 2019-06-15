@@ -15,6 +15,9 @@ case class EqualsTo( left: Expression, right: Expression) extends Expression
 case class Concat ( left : Expression , right: Expression )  extends Expression
 case class Stoi(e1 : Expression)  extends Expression
 case class Itos(e1 : Expression)  extends Expression
+case class And(left: Expression, right: Expression) extends Expression
+case class Or(left: Expression, right: Expression) extends Expression
+case class Not(expr: Expression) extends Expression
 //add empty expression -> skip
 
 
