@@ -177,6 +177,8 @@ object StatementProduct
                                                 var renamedStmt = VariableDefinition(ExpIdentifier(newActVarName), andStmt)
                                                 newTrueStmt = newTrueStmt ::: List(renamedStmt)
                                             }
+                                            var newWhileStmt = WhileLoop(newWhileCondition, newTrueStmt)
+                                            newAST = newAST ::: List(newWhileCondition)
                                             var newLevel = maxLevel + 1
                                             maxLevel+=1
                                             newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
