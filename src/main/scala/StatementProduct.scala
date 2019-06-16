@@ -149,9 +149,39 @@ object StatementProduct
                                             // println(newAST)
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
                 case WhileLoop(condition, trueStmt) =>
+                                            /* Create k fresh activation Variables */
+                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
+                                            var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
+                                            var newActivationVarArray = mapOfActivationVariables(maxLevel+1)
+                                            var checkActVarCondition1 = GreaterThan(ExpIdentifier(originalActivationVariableArray(1)), Number(0))
+                                            var checkActVarCondition2 = GreaterThan(ExpIdentifier(originalActivationVariableArray(2)), Number(0))
+                                            var andStmt1 = And(checkActVarCondition1, getRenamedValue(condition, mapOfRenamedVariables, i))
+                                            var andStmt2 = And(checkActVarCondition2, getRenamedValue(condition, mapOfRenamedVariables, i))
+                                            var newWhileCondition = Or(andStmt1, andStmt2)
+                                            var i=0
+                                            var j=0
 
-                                            
+                                            for ( i <- 3 to k)
+                                            {
+                                                var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
+                                                var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
+                                                newWhileCondition = newWhileCondition ::: Or(newWhileCondition, andStmt)
+                                            }
+
+                                            var newTrueStmt = List()
+                                            for ( i <- 1 to k)
+                                            {
+                                                var newActVarName = newActivationVarArray(i)
+                                                var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
+                                                var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
+                                                var renamedStmt = VariableDefinition(ExpIdentifier(newActVarName), andStmt)
+                                                newTrueStmt = newTrueStmt ::: List(renamedStmt)
+                                            }
+                                            var newLevel = maxLevel + 1
+                                            maxLevel+=1
+                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                                            
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
             }
         }
