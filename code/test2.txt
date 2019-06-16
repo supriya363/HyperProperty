@@ -1,9 +1,13 @@
 var a: Int;
 var b: Int;
-var c: String;
-var d: Int;
-a = b+2;
-if a > 6 then
-print "hii" ;
-endif
 
+if a < 2 then
+    if b > 2 then
+        a = 1;
+    else
+        a = 10;
+    endif
+    a = 0;
+else
+    a = 2;
+endif

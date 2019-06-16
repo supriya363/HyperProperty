@@ -83,6 +83,7 @@ object StatementProduct
                                                 keyArray(i) = name+i.toString
                                                 val renamedVar = VariableDeclaration(ExpIdentifier(keyArray(i)),dataType)
                                                 newAST = newAST ::: List(renamedVar)
+                                                println(renamedVar)
                                             }
                                             mapOfRenamedVariables+=(name -> keyArray  )                                                                                                         
                                             // oldAST = oldAST.tail
@@ -105,7 +106,7 @@ object StatementProduct
                                                 var actVarCheckCondition = GreaterThan(ExpIdentifier(activationVariable), Number(0))
                                                 var newIfStmt = IfStatement(actVarCheckCondition, List(renamedStmt), List()) //change it to skip
                                                 newAST = newAST ::: List(newIfStmt)
-                                                
+                                                println(newIfStmt)
                                             }
 
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
@@ -113,16 +114,15 @@ object StatementProduct
                 
                 case IfStatement(condition, trueStmt, falseStmt) => 
                                             /* Create Fresh Activation Variables ( 2*k required) */
-                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, currentLevel+1 )
-                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, currentLevel+2 )
+                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
+                                            newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+2 )
                                             var i = 0
                                             var j = 0
-                                            if(maxLevel < currentLevel + 2)
-                                                maxLevel = currentLevel + 2
+                                            
                                             /* Insert Activation Variable Assignments Statements */
                                             var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
-                                            var newActivationVarArray1 = mapOfActivationVariables(currentLevel+1)
-                                            var newActivationVarArray2 = mapOfActivationVariables(currentLevel+2)
+                                            var newActivationVarArray1 = mapOfActivationVariables(maxLevel+1)
+                                            var newActivationVarArray2 = mapOfActivationVariables(maxLevel+2)
 
                                             for(i <- 1 to k)
                                             {
@@ -137,13 +137,21 @@ object StatementProduct
                                                 var newActVarAssignment1 = VariableDefinition(ExpIdentifier(newActVarName1), andStmt1)
                                                 var newActVarAssignment2 = VariableDefinition(ExpIdentifier(newActVarName2), andStmt2)
                                                 newAST = newAST ::: List(newActVarAssignment1, newActVarAssignment2)
-
+                                                println(List(newActVarAssignment1, newActVarAssignment2))
                                                 
                                             }
-                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel+1, k, maxLevel)
-                                            newAST = getModifiedAST(falseStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel+2, k, maxLevel)
+                                            var nextLevel = maxLevel+1
+                                            var nextToNextLevel = maxLevel+2
+                                            maxLevel+=2
+                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextLevel, k, maxLevel)
+                                            // println(newAST)
+                                            newAST = getModifiedAST(falseStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextToNextLevel, k, maxLevel)
+                                            // println(newAST)
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                case WhileLoop(condition, trueStmt) =>
 
+                                            
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
             }
         }
