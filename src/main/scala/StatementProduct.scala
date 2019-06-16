@@ -155,8 +155,8 @@ object StatementProduct
                                             var newActivationVarArray = mapOfActivationVariables(maxLevel+1)
                                             var checkActVarCondition1 = GreaterThan(ExpIdentifier(originalActivationVariableArray(1)), Number(0))
                                             var checkActVarCondition2 = GreaterThan(ExpIdentifier(originalActivationVariableArray(2)), Number(0))
-                                            var andStmt1 = And(checkActVarCondition1, getRenamedValue(condition, mapOfRenamedVariables, i))
-                                            var andStmt2 = And(checkActVarCondition2, getRenamedValue(condition, mapOfRenamedVariables, i))
+                                            var andStmt1 = And(checkActVarCondition1, getRenamedValue(condition, mapOfRenamedVariables, 1))
+                                            var andStmt2 = And(checkActVarCondition2, getRenamedValue(condition, mapOfRenamedVariables, 2))
                                             var newWhileCondition = Or(andStmt1, andStmt2)
                                             var i=0
                                             var j=0
@@ -165,10 +165,10 @@ object StatementProduct
                                             {
                                                 var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
                                                 var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
-                                                newWhileCondition = newWhileCondition ::: Or(newWhileCondition, andStmt)
+                                                newWhileCondition = Or(newWhileCondition, andStmt)
                                             }
 
-                                            var newTrueStmt = List()
+                                            var newTrueStmt: List[Statement] = List()
                                             for ( i <- 1 to k)
                                             {
                                                 var newActVarName = newActivationVarArray(i)
@@ -181,7 +181,7 @@ object StatementProduct
                                             maxLevel+=1
                                             newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
-                                            
+
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
             }
         }
