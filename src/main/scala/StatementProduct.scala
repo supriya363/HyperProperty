@@ -23,6 +23,8 @@ object StatementProduct
         var mapOfRenamedVariables = mutable.Map[String, Array[String]]() 
         var mapOfActivationVariables = mutable.Map[Int, Array[String]]()
         val activationVariables: mutable.ArrayBuffer[String] = mutable.ArrayBuffer()
+        var maxLevelMap = mutable.Map[Int, Int]()
+        maxLevelMap+=(0 -> 0)
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         println("OldAST->\n" + oldAST)             
         val k = 3                   //Number of copies required
@@ -30,7 +32,7 @@ object StatementProduct
 
         newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
 
-        newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, currentLevel)
+        newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
         
         // println(mapOfRenamedVariables)
         // for(arr <- mapOfRenamedVariables.values)
@@ -44,10 +46,10 @@ object StatementProduct
     }
 
     def getModifiedAST(oldAST: List[Statement], newASTarg: List[Statement], mapOfRenamedVariables: mutable.Map[String, Array[String]],
-                        mapOfActivationVariables: mutable.Map[Int, Array[String]], currentLevel: Int, k: Int, maxLevelArg: Int): List[Statement] =
+                        mapOfActivationVariables: mutable.Map[Int, Array[String]], currentLevel: Int, k: Int, maxLevelMap: mutable.Map[Int,Int]): List[Statement] =
     {
         var newAST = newASTarg
-        var maxLevel = maxLevelArg
+        var maxLevel = maxLevelMap(0)
         if(!oldAST.isEmpty)
         {
             oldAST.head match
@@ -71,7 +73,7 @@ object StatementProduct
                                                 println(renamedVar)
                                             }
                                             mapOfRenamedVariables+=(name -> keyArray  )                                                                                                         
-                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
 
                 
                 case VariableDefinition(ExpIdentifier(name), value)     =>  
@@ -94,7 +96,7 @@ object StatementProduct
                                                 println("Added-> " + newIfStmt)
                                             }
 
-                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
                 
                 
                 case IfStatement(condition, trueStmt, falseStmt) => 
@@ -131,11 +133,12 @@ object StatementProduct
                                                                         // currently executing code
                                             var nextToNextLevel = maxLevel+2
                                             maxLevel+=2
-                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextLevel, k, maxLevel)
+                                            maxLevelMap(0) = maxLevel
+                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextLevel, k, maxLevelMap)
                                             // println(newAST)
-                                            newAST = getModifiedAST(falseStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextToNextLevel, k, maxLevel)
+                                            newAST = getModifiedAST(falseStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, nextToNextLevel, k, maxLevelMap)
                                             // println(newAST)
-                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
 
 
                 case WhileLoop(condition, trueStmt) =>
@@ -173,9 +176,10 @@ object StatementProduct
                                             }
                                             var newLevel = maxLevel + 1
                                             maxLevel+=1
+                                            maxLevelMap(0) = maxLevel
                                             var tempWhileAST : List[Statement] = List()
                                             println("Adding to temporary AST to be inserted into WHILE ")
-                                            tempWhileAST = getModifiedAST(trueStmt, tempWhileAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
+                                            tempWhileAST = getModifiedAST(trueStmt, tempWhileAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevelMap)
                                             println("New true stmt Added inside while -> " + tempWhileAST + "\n")
                                             var finalTrueStmt = newTrueStmt ::: tempWhileAST
                                             var newWhileStmt = WhileLoop(newWhileCondition, finalTrueStmt)
@@ -183,9 +187,9 @@ object StatementProduct
                                             println("Added-> " + newWhileStmt)
                                             newAST = newAST ::: List(newWhileStmt)
                                         
-                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
 
-                case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
+                case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
             }
         }
         return newAST
