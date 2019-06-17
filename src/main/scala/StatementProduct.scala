@@ -25,7 +25,7 @@ object StatementProduct
         val activationVariables: mutable.ArrayBuffer[String] = mutable.ArrayBuffer()
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         println("OldAST->\n" + oldAST)             
-        val k = 2                   //Number of copies required
+        val k = 3                   //Number of copies required
         var currentLevel = 0        //To keep note of current set of relevant activation variables
 
         newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
@@ -157,7 +157,9 @@ object StatementProduct
                                                 var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
                                                 var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
                                                 newWhileCondition = Or(newWhileCondition, andStmt)
+                                                println("\nNew While Condition -> " + newWhileCondition + "\n")
                                             }
+
 
                                             var newTrueStmt: List[Statement] = List()
                                             for ( i <- 1 to k)
@@ -167,12 +169,20 @@ object StatementProduct
                                                 var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
                                                 var renamedStmt = VariableDefinition(ExpIdentifier(newActVarName), andStmt)
                                                 newTrueStmt = newTrueStmt ::: List(renamedStmt)
+                                                println("New true stmt Added inside While-> " + renamedStmt)
                                             }
-                                            var newWhileStmt = WhileLoop(newWhileCondition, newTrueStmt)
-                                            newAST = newAST ::: List(newWhileStmt)
                                             var newLevel = maxLevel + 1
                                             maxLevel+=1
-                                            newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
+                                            var tempWhileAST : List[Statement] = List()
+                                            println("Adding to temporary AST to be inserted into WHILE ")
+                                            tempWhileAST = getModifiedAST(trueStmt, tempWhileAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
+                                            println("New true stmt Added inside while -> " + tempWhileAST + "\n")
+                                            var finalTrueStmt = newTrueStmt ::: tempWhileAST
+                                            var newWhileStmt = WhileLoop(newWhileCondition, finalTrueStmt)
+                                            println("While statement formed")
+                                            println("Added-> " + newWhileStmt)
+                                            newAST = newAST ::: List(newWhileStmt)
+                                        
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
 
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevel)
