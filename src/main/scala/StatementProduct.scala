@@ -7,7 +7,7 @@ import scala.util.Try
 
 object StatementProduct
 {
-    def constructStatementProduct(ast : List[Statement], k: Int) {
+    def constructStatementProduct(ast : List[Statement], noOfCopies: Int) {
 
         var newAST: List[Statement] = List()
         var oldAST: List[Statement] = List()
@@ -27,7 +27,7 @@ object StatementProduct
         maxLevelMap+=(0 -> 0)
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         println("OldAST->\n" + oldAST)             
-        val k = 3                   //Number of copies required
+        val k = noOfCopies                   //Number of copies required
         var currentLevel = 0        //To keep note of current set of relevant activation variables
 
         newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
