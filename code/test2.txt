@@ -1,13 +1,17 @@
 var a: Int;
 var b: Int;
-
-if a < 2 then
-    if b > 2 then
-        a = 1;
-    else
-        a = 10;
-    endif
-    a = 0;
+var c: Int;
+a = 2;
+if b < c then
+    c = b+c;
 else
-    a = 2;
+    if a > 1 then
+    c = 10;
+    else
+    a = 20;
+    endif
+    c = 1;
 endif
+while  a < 3 do
+a = a+1;
+endwhile
