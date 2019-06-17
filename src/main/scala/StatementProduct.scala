@@ -53,7 +53,7 @@ object StatementProduct
             oldAST.head match
             {
                 case VariableDeclaration(ExpIdentifier(name), dataType) =>  
-                                            println("Declaration Case")
+                                            println("\n******Declaration Case*******")
 
                                             var keyArray = new Array[String](k+1) 
                                             keyArray(0) = dataType
@@ -75,7 +75,7 @@ object StatementProduct
 
                 
                 case VariableDefinition(ExpIdentifier(name), value)     =>  
-                                            println("Definition Case")
+                                            println("\n*******Definition Case*******")
 
                                             var keyArray = mapOfRenamedVariables(name)
                                             var activationVariableArray = mapOfActivationVariables(currentLevel)
@@ -98,6 +98,7 @@ object StatementProduct
                 
                 
                 case IfStatement(condition, trueStmt, falseStmt) => 
+                                            println("\n*********If Case**********")
                                             /* Create Fresh Activation Variables ( 2*k required) */
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+2 )
@@ -138,6 +139,7 @@ object StatementProduct
 
 
                 case WhileLoop(condition, trueStmt) =>
+                                            println("\n**********While Case********")
                                             /* Create k fresh activation Variables */
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
                                             var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
@@ -167,7 +169,7 @@ object StatementProduct
                                                 newTrueStmt = newTrueStmt ::: List(renamedStmt)
                                             }
                                             var newWhileStmt = WhileLoop(newWhileCondition, newTrueStmt)
-                                            newAST = newAST ::: List(newWhileCondition)
+                                            newAST = newAST ::: List(newWhileStmt)
                                             var newLevel = maxLevel + 1
                                             maxLevel+=1
                                             newAST = getModifiedAST(trueStmt, newAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevel)
