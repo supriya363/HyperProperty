@@ -7,7 +7,7 @@ import scala.util.Try
 
 object StatementProduct
 {
-    def makeTwoCopies(ast : List[Statement]) {
+    def constructStatementProduct(ast : List[Statement], k: Int) {
 
         var newAST: List[Statement] = List()
         var oldAST: List[Statement] = List()
@@ -23,7 +23,7 @@ object StatementProduct
         var mapOfRenamedVariables = mutable.Map[String, Array[String]]() 
         var mapOfActivationVariables = mutable.Map[Int, Array[String]]()
         val activationVariables: mutable.ArrayBuffer[String] = mutable.ArrayBuffer()
-        var maxLevelMap = mutable.Map[Int, Int]()
+        var maxLevelMap = mutable.Map[Int, Int]() //used to keep track of maximum number of activation variables alreday created
         maxLevelMap+=(0 -> 0)
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         println("OldAST->\n" + oldAST)             
@@ -33,16 +33,7 @@ object StatementProduct
         newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
 
         newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
-        
-        // println(mapOfRenamedVariables)
-        // for(arr <- mapOfRenamedVariables.values)
-        // {    println(arr(0))
-        //      println(arr(1))
-        //      println(arr(2))
-        // }
-    
-
-        println("New AST->\n" + newAST)       
+        println("New AST->\n\n" + newAST)       
     }
 
     def getModifiedAST(oldAST: List[Statement], newASTarg: List[Statement], mapOfRenamedVariables: mutable.Map[String, Array[String]],

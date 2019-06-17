@@ -21,8 +21,9 @@ object ParserMain
            if( result == "")    
            {                                         
               ScalaInterpreter.interpretStmt(text.asInstanceOf[List[model.Statement]])          //   Interpreter
-              println("Passing To ASTManipulation")
-              StatementProduct.makeTwoCopies(text)
+              println("Enter number of copies required: ")
+              var noOfCopies = readInt()
+              StatementProduct.constructStatementProduct(text, noOfCopies)
            }
            else
            {
