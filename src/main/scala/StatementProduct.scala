@@ -26,14 +26,20 @@ object StatementProduct
         var maxLevelMap = mutable.Map[Int, Int]() //used to keep track of maximum number of activation variables alreday created
         maxLevelMap+=(0 -> 0)
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
-        println("OldAST->\n" + oldAST)             
+        var stmt : Statement = PrintStatement(ExpStringLit(""))
+        println("----------OLD PROGRAM---------\n")
+        for(stmt <- oldAST)
+            print(stmt)           
         val k = noOfCopies                   //Number of copies required
         var currentLevel = 0        //To keep note of current set of relevant activation variables
 
         newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
 
         newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
-        println("New AST->\n\n" + newAST)       
+        println("----------NEW PROGRAM---------\n")
+
+        for(stmt <- newAST)
+            print(stmt)     
     }
 
     def getModifiedAST(oldAST: List[Statement], newASTarg: List[Statement], mapOfRenamedVariables: mutable.Map[String, Array[String]],
@@ -46,7 +52,7 @@ object StatementProduct
             oldAST.head match
             {
                 case VariableDeclaration(ExpIdentifier(name), dataType) =>  
-                                            println("\n******Declaration Case*******")
+                                            // println("\n******Declaration Case*******")
 
                                             var keyArray = new Array[String](k+1) 
                                             keyArray(0) = dataType
@@ -61,14 +67,14 @@ object StatementProduct
                                                 keyArray(i) = name + i.toString
                                                 val renamedVar = VariableDeclaration(ExpIdentifier(keyArray(i)),dataType)
                                                 newAST = newAST ::: List(renamedVar)
-                                                println(renamedVar)
+                                                // println(renamedVar)
                                             }
                                             mapOfRenamedVariables+=(name -> keyArray  )                                                                                                         
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
 
                 
                 case VariableDefinition(ExpIdentifier(name), value)     =>  
-                                            println("\n*******Definition Case*******")
+                                            // println("\n*******Definition Case*******")
 
                                             var keyArray = mapOfRenamedVariables(name)
                                             var activationVariableArray = mapOfActivationVariables(currentLevel)
@@ -84,14 +90,14 @@ object StatementProduct
                                                 var actVarCheckCondition = GreaterThan(ExpIdentifier(activationVariable), Number(0)) //if actVar > 0
                                                 var newIfStmt = IfStatement(actVarCheckCondition, List(renamedStmt), List()) //change it to skip if required
                                                 newAST = newAST ::: List(newIfStmt)
-                                                println("Added-> " + newIfStmt)
+                                                // println("Added-> " + newIfStmt)
                                             }
 
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
                 
                 
                 case IfStatement(condition, trueStmt, falseStmt) => 
-                                            println("\n*********If Case**********")
+                                            // println("\n*********If Case**********")
                                             /* Create Fresh Activation Variables ( 2*k required) */
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+2 )
@@ -116,8 +122,8 @@ object StatementProduct
                                                 var newActVarAssignment1 = VariableDefinition(ExpIdentifier(newActVarName1), andStmt1)
                                                 var newActVarAssignment2 = VariableDefinition(ExpIdentifier(newActVarName2), andStmt2)
                                                 newAST = newAST ::: List(newActVarAssignment1, newActVarAssignment2)
-                                                print("Added-> ")
-                                                println(List(newActVarAssignment1, newActVarAssignment2))
+                                                // print("Added-> ")
+                                                // println(List(newActVarAssignment1, newActVarAssignment2))
                                                 
                                             }
                                             var nextLevel = maxLevel+1  // level corresponds to new set of activation variables relevant for the
@@ -133,7 +139,7 @@ object StatementProduct
 
 
                 case WhileLoop(condition, trueStmt) =>
-                                            println("\n**********While Case********")
+                                            // println("\n**********While Case********")
                                             /* Create k fresh activation Variables */
                                             newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+1 )
                                             var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
@@ -151,7 +157,7 @@ object StatementProduct
                                                 var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
                                                 var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
                                                 newWhileCondition = Or(newWhileCondition, andStmt)
-                                                println("\nNew While Condition -> " + newWhileCondition + "\n")
+                                                // println("\nNew While Condition -> " + newWhileCondition + "\n")
                                             }
 
 
@@ -163,19 +169,19 @@ object StatementProduct
                                                 var andStmt = And(checkActVarCondition, getRenamedValue(condition, mapOfRenamedVariables, i))
                                                 var renamedStmt = VariableDefinition(ExpIdentifier(newActVarName), andStmt)
                                                 newTrueStmt = newTrueStmt ::: List(renamedStmt)
-                                                println("New true stmt Added inside While-> " + renamedStmt)
+                                                // println("New true stmt Added inside While-> " + renamedStmt)
                                             }
                                             var newLevel = maxLevel + 1
                                             maxLevel+=1
                                             maxLevelMap(0) = maxLevel
                                             var tempWhileAST : List[Statement] = List()
-                                            println("Adding to temporary AST to be inserted into WHILE ")
+                                            // println("Adding to temporary AST to be inserted into WHILE ")
                                             tempWhileAST = getModifiedAST(trueStmt, tempWhileAST, mapOfRenamedVariables, mapOfActivationVariables, newLevel, k, maxLevelMap)
-                                            println("New true stmt Added inside while -> " + tempWhileAST + "\n")
+                                            // println("New true stmt Added inside while -> " + tempWhileAST + "\n")
                                             var finalTrueStmt = newTrueStmt ::: tempWhileAST
                                             var newWhileStmt = WhileLoop(newWhileCondition, finalTrueStmt)
-                                            println("While statement formed")
-                                            println("Added-> " + newWhileStmt)
+                                            // println("While statement formed")
+                                            // println("Added-> " + newWhileStmt)
                                             newAST = newAST ::: List(newWhileStmt)
                                         
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
@@ -225,7 +231,7 @@ object StatementProduct
         for ( i <- 1 to k)
         {
             val stmt = VariableDeclaration(ExpIdentifier("actVar"+level+"_"+i.toString), datatype)
-            println("Added -> " + stmt)
+            // println("Added -> " + stmt)
             newAST = newAST ::: List(stmt)
             keyArray(i) = "actVar"+level+"_"+i.toString
             
