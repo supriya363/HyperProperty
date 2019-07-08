@@ -1,6 +1,7 @@
 var a: Int;
 var b: Int;
 var c: Int;
+var d: Func;
 a = 2;
 if b < c then
     c = b+c;
@@ -15,3 +16,6 @@ endif
 while  a < 3 do
 a = a+1;
 endwhile
+var e: Int;
+var f: Int;
+call d(a+b,b) returns (e, f);

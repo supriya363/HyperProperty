@@ -19,8 +19,9 @@ object ParserMain
                                                                                     // print AST
            var result = TypeCheckVisitor.typecheck(text)                                          //   Type check
            if( result == "")    
-           {                                         
-              ScalaInterpreter.interpretStmt(text.asInstanceOf[List[model.Statement]])          //   Interpreter
+           {                
+              println(text)                         
+            //   ScalaInterpreter.interpretStmt(text.asInstanceOf[List[model.Statement]])          //   Interpreter
               println("Enter number of copies required: ")
               var noOfCopies = readInt()
               StatementProduct.constructStatementProduct(text, noOfCopies)

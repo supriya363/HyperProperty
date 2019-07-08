@@ -14,8 +14,8 @@ object ScalaParser extends StdTokenParsers with StdTokens with PackratParsers{
         type Tokens = StdLexical
         val lexical = new StdLexical
 
-        lexical.delimiters ++= List("+", "-", "*",";","==","=","<",">","++",":","(",")")
-        lexical.reserved ++= List("print","if","else","then","endif","Int","String","var","while","do","endwhile","Str")
+        lexical.delimiters ++= List("+", "-", "*",";","==","=","<",">","++",":","(",")",",")
+        lexical.reserved ++= List("print","if","else","then","endif","Int","String","var","while","do","endwhile","Str","Func","call","returns")
         
         def parseExpression(text: String) =                       // expression parser 
         {
@@ -74,7 +74,7 @@ object ScalaParser extends StdTokenParsers with StdTokens with PackratParsers{
         
         lazy val blockstatement : PackratParser[List[Statement]] = rep(s1)  ^^ { a => a}
         
-        lazy val s1: PackratParser[Statement] = declarationstmt | assignstmt | printstmt | ifStatement | whileloop
+        lazy val s1: PackratParser[Statement] = declarationstmt | assignstmt | printstmt | ifStatement | whileloop | callstmt
           
         lazy val printstmt: PackratParser[PrintStatement] =  "print"  ~> (expr) <~  ";"    ^^ 
                   { case b => b match 
@@ -90,12 +90,27 @@ object ScalaParser extends StdTokenParsers with StdTokens with PackratParsers{
                                   case Itos(a) => PrintStatement(Itos(a))
                                }   
                   }
+
+        lazy val callstmt: PackratParser[FunctionCall] =
+                  "call" ~> identifier ~ "(" ~ parameters ~ ")" ~ opt("returns" ~ "(" ~> parameters) <~ ")" ~ ";" ^^ 
+                    { case a ~ b ~ c ~ d ~ e => 
+                        e match {
+                                  case None => FunctionCall(a.toString, c, List())
+                                  case _ => FunctionCall(a.toString, c, e.get)
+                                } 
+                    }
+
+        lazy val parameters: Parser[List[Expression]] = 
+                  expr ~ ( "," ~> parameters ) ^^ {
+                    case a ~ c =>
+                      a :: c
+                  }| expr ^^ { a => List(a)}
      
         lazy val assignstmt: PackratParser[VariableDefinition] =
                   identifier ~ "=" ~ expr <~ ";" ^^ {case a ~ "=" ~ b =>  VariableDefinition(a,b)}
         
         lazy val declarationstmt: PackratParser[VariableDeclaration] =
-                  "var" ~> identifier  ~ ":" ~  ("Int" | "String") <~ ";" ^^ {case a ~ b ~ c => VariableDeclaration(a,c)}    
+                  "var" ~> identifier  ~ ":" ~  ("Int" | "String" | "Func") <~ ";" ^^ {case a ~ b ~ c => VariableDeclaration(a,c)}    
          
         lazy val  ifStatement :  PackratParser[IfStatement] = 
                  "if" ~> condition ~ "then" ~ blockstatement ~ opt("else" ~> blockstatement) <~ "endif" ^^ 

@@ -23,7 +23,7 @@ object StatementProduct
         var mapOfRenamedVariables = mutable.Map[String, Array[String]]() 
         var mapOfActivationVariables = mutable.Map[Int, Array[String]]()
         val activationVariables: mutable.ArrayBuffer[String] = mutable.ArrayBuffer()
-        var maxLevelMap = mutable.Map[Int, Int]() //used to keep track of maximum number of activation variables alreday created
+        var maxLevelMap = mutable.Map[Int, Int]() //used to keep track of maximum number of activation variables already created
         maxLevelMap+=(0 -> 0)
         oldAST = oldAST ::: ast     //Contains the provided AST of single execution
         var stmt : Statement = PrintStatement(ExpStringLit(""))
@@ -32,10 +32,13 @@ object StatementProduct
             print(stmt)           
         val k = noOfCopies                   //Number of copies required
         var currentLevel = 0        //To keep note of current set of relevant activation variables
+        if(k>1)
+        {    newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
 
-        newAST = createActivationVariables(newAST, k,mapOfActivationVariables, currentLevel) 
-
-        newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
+            newAST = getModifiedAST(oldAST, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
+        }
+        else
+            newAST = oldAST
         println("----------NEW PROGRAM---------\n")
 
         for(stmt <- newAST)
@@ -185,6 +188,99 @@ object StatementProduct
                                             newAST = newAST ::: List(newWhileStmt)
                                         
                                             newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
+
+                case FunctionCall(name :String, parameter : List[Expression], returnParameter: List[Expression]) =>
+                                            
+                                            var numberOfParameters = parameter.size
+                                            var numberOfReturnParameters = returnParameter.size
+                                            var m = 0
+                                            var n = 0
+                                            for( m <- 1 to numberOfParameters)
+                                                newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+m )
+                                            //activation variables for return statement
+                                            for ( n <- 1 to numberOfReturnParameters)
+                                                newAST = createActivationVariables(newAST, k, mapOfActivationVariables, maxLevel+numberOfParameters+n )
+                                            
+                                            var originalActivationVariableArray = mapOfActivationVariables(currentLevel)
+                                            var checkActVarCondition1 = GreaterThan(ExpIdentifier(originalActivationVariableArray(1)), Number(0))
+                                            var checkActVarCondition2 = GreaterThan(ExpIdentifier(originalActivationVariableArray(2)), Number(0))
+                                            var newOuterIfCondition = Or(checkActVarCondition1, checkActVarCondition2)
+                                            var i = 0
+                                            var j = 0
+                                            for( i <- 3 to k)
+                                            {
+                                                var checkActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
+                                                newOuterIfCondition = Or(newOuterIfCondition, checkActVarCondition)
+                                                
+                                            }
+                                            // Creating Outer If True Statement
+                                            var newIfStatements1: List[Statement] = List()
+                                            for( i <- 1 to k)
+                                            {
+                                                var insideCheckActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
+                                                println("Check Condition->"+ insideCheckActVarCondition)
+                                                var newTrueStmt: List[Statement] = List()           
+                                                for( j <- 1 to numberOfParameters )
+                                                {
+                                                    var newActivationVarArray = mapOfActivationVariables(maxLevel+j)
+                                                    var newActVarName = newActivationVarArray(i)
+                                                    // println("jth Activation Variable name->" + newActVarName)
+                                                    // println(parameter(j-1))
+                                                    var assignmentStatement = VariableDefinition(ExpIdentifier(newActVarName), getRenamedValue(parameter(j-1), mapOfRenamedVariables, i))
+                                                    newTrueStmt = newTrueStmt ::: List(assignmentStatement)
+
+                                                }   
+                                                var newIfStatement = IfStatement(insideCheckActVarCondition, newTrueStmt, List())
+                                                newIfStatements1 = newIfStatements1 ::: List(newIfStatement)
+                
+                                            }
+
+                                            var newIfStatements2: List[Statement] = List()
+                                            for( i <- 1 to k)
+                                            {
+                                                var insideCheckActVarCondition = GreaterThan(ExpIdentifier(originalActivationVariableArray(i)), Number(0))
+                                                println("Check Condition->"+ insideCheckActVarCondition)
+                                                var newTrueStmt: List[Statement] = List()           
+                                                for( j <- 1 to numberOfReturnParameters )
+                                                {
+                                                    var newActivationVarArray = mapOfActivationVariables(maxLevel+numberOfParameters+ j)
+                                                    var newActVarName = newActivationVarArray(i)
+                                                    // println("jth Activation Variable name->" + newActVarName)
+                                                    // println(parameter(j-1))
+                                                    var assignmentStatement = VariableDefinition(getRenamedValue(returnParameter(j-1), mapOfRenamedVariables, i), ExpIdentifier(newActVarName))
+                                                    newTrueStmt = newTrueStmt ::: List(assignmentStatement)
+
+                                                }   
+                                                var newIfStatement = IfStatement(insideCheckActVarCondition, newTrueStmt, List())
+                                                newIfStatements2 = newIfStatements2 ::: List(newIfStatement)
+                
+                                            }
+                                            // println(newIfStatements2)
+                                            var newparameterList: List[Expression] = List()
+                                            var newreturnparameterList: List[Expression] = List()
+                                            for( i <- 1 to k)
+                                            {    
+                                                var addParameter = ExpIdentifier(originalActivationVariableArray(i))
+                                                newparameterList = newparameterList ::: List(addParameter)
+                                                for( j <- 1 to numberOfParameters)
+                                                {
+                                                    var newActivationVarArray1 = mapOfActivationVariables(maxLevel+j)
+                                                    var addNewParameter = ExpIdentifier(newActivationVarArray1(i))
+                                                    newparameterList = newparameterList ::: List(addNewParameter)
+                                                    var newActivationVarArray2 = mapOfActivationVariables(maxLevel + numberOfParameters + j)
+                                                    var addNewReturnParameter = ExpIdentifier(newActivationVarArray2(i))
+                                                    newreturnparameterList = newreturnparameterList ::: List(addNewReturnParameter)
+                                                }
+                                            }                                           
+                                            var newFunctionCallStmt = FunctionCall(name, newparameterList, newreturnparameterList)
+                                            var outerIfTrueStmt = newIfStatements1 ::: List(newFunctionCallStmt) ::: newIfStatements2
+                                            var newOuterIfStmt = IfStatement(newOuterIfCondition, outerIfTrueStmt, List() )
+                                            // println(newOuterIfStmt)
+                                            newAST = newAST ::: List(newOuterIfStmt)
+                                            maxLevel += (numberOfParameters + numberOfReturnParameters)
+                                            maxLevelMap(0) = maxLevel
+                                            newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
+
 
                 case _ => newAST = getModifiedAST(oldAST.tail, newAST, mapOfRenamedVariables, mapOfActivationVariables, currentLevel, k, maxLevelMap)
             }

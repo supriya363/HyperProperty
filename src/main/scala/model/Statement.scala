@@ -40,3 +40,25 @@ case class WhileLoop(condition: Expression, trueBranch: List[Statement]) extends
     }
 }
 // case class Skip() extends Statement
+
+// ADDED
+case class FunctionCall(name :String, parameter : List[Expression], returnParameter: List[Expression]) extends Statement {
+    override def toString() = {
+        // var name : Statement = PrintStatement(ExpStringLit(""))
+        var parameters : String = ""
+        var returnParameters : String = ""
+        for(name <- parameter) {
+            parameters = parameters + name.toString + ","
+        }
+        for(name <- returnParameter) {
+            returnParameters = returnParameters + name.toString + ","
+        }
+        parameters = parameters.substring(0, parameters.length-1)
+        if(!returnParameter.isEmpty)
+        returnParameters = returnParameters.substring(0, returnParameters.length-1)
+        if(returnParameter.isEmpty)
+            "\n" +"call " + name + "(" + parameters + ");\n"
+        else
+            "\n" +"call " + name + "(" + parameters + ") returns (" + returnParameters + ");\n"
+    }
+}
